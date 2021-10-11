@@ -16,18 +16,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Get changed Files
-        id: files
-        uses: jitterbit/get-changed-files@v1
-        with:
-          format: 'json'
+#      - name: Get changed Files
+#        id: files
+#        uses: jitterbit/get-changed-files@v1
+#        with:
+#          token: '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'
+#          format: 'json'
 
       - name: Build Dockerfile Matrix
         id: create_matrix
         run: |
-          echo "::set-output name=matrix::${{ steps.files.outputs.all }}"
+          echo '::set-output name=matrix::${{ steps.files.outputs.all }}'
 
-  build:
+  build_images:
     needs: build_matrix
 
     runs-on: ubuntu-latest
