@@ -6,8 +6,37 @@ on:
       - 'main'
 
 jobs:
-  docker:
+  files:
+  matrix:
     runs-on: ubuntu-latest
+
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Get changed Files
+        id: files
+        uses: jitterbit/get-changed-files@v1
+        with:
+          format: 'json'
+
+      - name: Build Dockerfile Matrix
+        id: set-matrix
+        run: |
+          echo "::set-output name=matrix::${{ steps.files.outputs.all }}"
+
+  build:
+    needs: matrix
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix: ${{fromJson(needs.matrix.outputs.matrix)}}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -25,5 +54,19 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Build and push
-        run: |
-          ./build.sh all -p
+        uses: docker/build-push-action@v2
+        with:
+          file: ${{ matrix }}
+          push: true
+          tags: lostlink/vapor:"${matrix:2:$((${#changed_file} - 13))}"
+
+
+#      - name: Build and Push updated Dockerfiles
+#        run: |
+#          for changed_file in ${{ steps.files.outputs.all }}; do
+#            if [[ ${changed_file} == *".Dockerfile" ]]; then
+#              length=$((${#changed_file} - 13))
+#              VERSION=${value:2:$length}
+#              ./build.sh ${VERSION} -p
+#            fi
+#          done
