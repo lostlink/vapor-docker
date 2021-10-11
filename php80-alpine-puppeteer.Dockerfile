@@ -26,4 +26,4 @@ RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" > /etc/apk/repositorie
 
 COPY "resources/local.conf" "/etc/fonts/local.conf"
 
-RUN npm install --global "puppeteer@^6.0.0"
+RUN npm install --global puppeteer
