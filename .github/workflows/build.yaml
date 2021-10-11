@@ -6,11 +6,11 @@ on:
       - 'main'
 
 jobs:
-  matrix:
+  build_matrix:
     runs-on: ubuntu-latest
 
     outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      matrix: ${{ steps.create_matrix.outputs.matrix }}
 
     steps:
       - name: Checkout
@@ -23,18 +23,18 @@ jobs:
           format: 'json'
 
       - name: Build Dockerfile Matrix
-        id: set-matrix
+        id: create_matrix
         run: |
           echo "::set-output name=matrix::${{ steps.files.outputs.all }}"
 
   build:
-    needs: matrix
+    needs: build_matrix
 
     runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
-      matrix: ${{fromJson(needs.matrix.outputs.matrix)}}
+      matrix: ${{ fromJson(needs.build_matrix.outputs.matrix) }}
 
     steps:
       - name: Checkout
