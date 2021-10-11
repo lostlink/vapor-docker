@@ -6,7 +6,6 @@ on:
       - 'main'
 
 jobs:
-  files:
   matrix:
     runs-on: ubuntu-latest
 
