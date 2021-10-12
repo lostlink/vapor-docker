@@ -16,12 +16,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-#      - name: Get changed Files
-#        id: files
-#        uses: jitterbit/get-changed-files@v1
-#        with:
-#          token: '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'
-#          format: 'json'
+      - name: Get changed Files
+        id: files
+        uses: jitterbit/get-changed-files@v1
+
+#      - name: Build and Push updated Dockerfiles
+#        run: |
+#          for changed_file in ${{ steps.files.outputs.all }}; do
+#            if [[ ${changed_file} == *".Dockerfile" ]]; then
+#              length=$((${#changed_file} - 13))
+#              VERSION=${value:2:$length}
+#              ./build.sh ${VERSION} -p
+#            fi
+#          done
 
       - name: Build Dockerfile Matrix
         id: create_matrix
