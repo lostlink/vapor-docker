@@ -42,7 +42,7 @@ jobs:
 
     steps:
       - name: TEST
-        run: echo $'${{ needs.build_matrix.outputs.matrix_json }}'
+        run: echo ${{ fromJson(needs.build_matrix.outputs.matrix_json) }}
 
 #      - name: Checkout
 #        uses: actions/checkout@v2
