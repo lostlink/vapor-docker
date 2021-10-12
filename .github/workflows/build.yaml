@@ -23,7 +23,8 @@ jobs:
       - name: Create Matrix JSON
         id: json
         run: |
-          echo ::set-output name=data::(${{ steps.files.outputs.all }} | jq -R 'split(" ") | map({path: (.)})')
+          json=${{ steps.files.outputs.all }} | jq -R 'split(" ") | map({path: (.)})'
+          echo ::set-output name=data::${json}
 
       - name: Build Dockerfile Matrix
         id: matrix
