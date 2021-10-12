@@ -1,6 +1,5 @@
 FROM lostlink/vapor:php80-alpine-octane
 
-
 RUN pecl channel-update pecl.php.net && \
     pecl install -o -f \
       imagick && \
