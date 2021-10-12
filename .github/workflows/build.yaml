@@ -23,7 +23,7 @@ jobs:
       - name: Create Matrix JSON
         id: json
         run: |
-          json=$(echo ${{ steps.files.outputs.all }} | sed 's/ /\n/g' | sed '/Dockerfile/!d' | jq --slurp --raw-input 'split("\n") | map({path: (.), version: (. |= .[:-11])})' | sed 's/"/\\"/g')
+          json=$(echo ${{ steps.files.outputs.all }} | sed 's/ /\n/g' | sed '/Dockerfile/!d' | jq --slurp --raw-input 'split("\n")[:-1] | map({path: (.), version: (. |= .[:-11])})' | sed 's/"/\\"/g')
           echo ::set-output name=data::${json}
 
       - name: Build Dockerfile Matrix
@@ -33,9 +33,14 @@ jobs:
 
   build_images:
     if: ${{ needs.build_matrix.outputs.matrix_json }}
+
     needs: build_matrix
 
     runs-on: ubuntu-latest
+
+    env:
+      DOCKER_BUILDKIT: 1
+      COMPOSE_DOCKER_CLI_BUILD: 1
 
     strategy:
       fail-fast: false
