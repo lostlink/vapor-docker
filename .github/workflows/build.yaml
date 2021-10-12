@@ -63,12 +63,19 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      - name: Build and push
-        uses: docker/build-push-action@v2
+      - name: Build and Push updated Dockerfiles
         env:
           DOCKER_BUILDKIT: 1
           COMPOSE_DOCKER_CLI_BUILD: 1
-        with:
-          file: ${{ matrix.dockerfile.path }}
-          push: true
-          tags: lostlink/vapor:${{ matrix.dockerfile.version }}
+        run: |
+              ./build.sh ${{ matrix.dockerfile.version }} -p
+
+#      - name: Build and push
+#        uses: docker/build-push-action@v2
+#        env:
+#          DOCKER_BUILDKIT: 1
+#          COMPOSE_DOCKER_CLI_BUILD: 1
+#        with:
+#          file: ${{ matrix.dockerfile.path }}
+#          push: true
+#          tags: lostlink/vapor:${{ matrix.dockerfile.version }}

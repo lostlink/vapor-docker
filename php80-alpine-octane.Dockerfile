@@ -1,7 +1,7 @@
 # syntax = edrevo/dockerfile-plus
 FROM php:8.0-fpm-alpine
 
-
+INCLUDE+ php80-alpine.Dockerfile
 
 
 RUN pecl channel-update pecl.php.net && \
