@@ -23,8 +23,7 @@ jobs:
       - name: Create Matrix JSON
         id: json
         run: |
-          json=`echo ${{ steps.files.outputs.all }} | jq -R 'split(" ") | map({path: (.)})'`
-          echo ::set-output name=data::${json}
+          echo ::set-output name=data::$'`echo ${{ steps.files.outputs.all }} | jq -R 'split(" ") | map({path: (.)})'`'
 
       - name: Build Dockerfile Matrix
         id: matrix
@@ -42,7 +41,7 @@ jobs:
 
     steps:
       - name: TEST
-        run: echo ${{ needs.build_matrix.outputs.matrix_json }}
+        run: echo $'${{ needs.build_matrix.outputs.matrix_json }}'
 
 #      - name: Checkout
 #        uses: actions/checkout@v2
