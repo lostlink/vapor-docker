@@ -57,12 +57,12 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-#      - name: Build and push
-#        uses: docker/build-push-action@v2
-#        with:
-#          file: ${{ matrix }}
-#          push: true
-#          tags: lostlink/vapor:"${matrix:2:$((${#changed_file} - 13))}"
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          file: ${{ matrix.path }}
+          push: true
+          tags: lostlink/vapor:"${matrix.path:2:$((${#matrix.path} - 13))}"
 
 
 #      - name: Build and Push updated Dockerfiles
