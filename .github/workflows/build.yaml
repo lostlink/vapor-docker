@@ -23,7 +23,7 @@ jobs:
       - name: Create Matrix JSON
         id: json
         run: |
-          json=$(echo ${{ steps.files.outputs.all }} | sed 's/ /\n/g' | sed '/Dockerfile/!d' | jq -R 'split(" ") | map({path: (.), version: (.)}) | .[].version |= .[:-11]' | sed 's/"/\\"/g'
+          json=$(echo ${{ steps.files.outputs.all }} | sed 's/ /\n/g' | sed '/Dockerfile/!d' | jq -R 'split(" ") | map({path: (.), version: (.)}) | .[].version |= .[:-11]' | sed 's/"/\\"/g')
           echo ::set-output name=data::${json}
 
       - name: Build Dockerfile Matrix
