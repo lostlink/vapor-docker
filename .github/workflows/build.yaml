@@ -63,13 +63,14 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      - name: Build and Push updated Dockerfiles
+      - name: Build and Push
         env:
           DOCKER_BUILDKIT: 1
           COMPOSE_DOCKER_CLI_BUILD: 1
         run: |
               ./build.sh ${{ matrix.dockerfile.version }} -p
 
+# TODO: Find a way to have INCLUDE+ (# syntax = edrevo/dockerfile-plus) work here instead of using the script ./build.sh
 #      - name: Build and push
 #        uses: docker/build-push-action@v2
 #        env:

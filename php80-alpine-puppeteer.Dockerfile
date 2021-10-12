@@ -3,7 +3,6 @@ FROM php:8.0-fpm-alpine
 
 INCLUDE+ php80-alpine.Dockerfile
 
-
 ENV CHROME_BIN="/usr/bin/chromium-browser" \
     CHROME_PATH="/usr/lib/chromium/" \
     PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 \

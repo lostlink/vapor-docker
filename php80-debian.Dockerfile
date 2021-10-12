@@ -1,6 +1,5 @@
 FROM php:8.0-fpm
 
-
 RUN apt update && \
     apt upgrade -y && \
     apt install -y \

@@ -4,7 +4,6 @@ FROM php:8.0-fpm-alpine
 INCLUDE+ php80-alpine.Dockerfile
 INCLUDE+ php80-alpine-octane.Dockerfile
 
-
 RUN pecl channel-update pecl.php.net && \
     pecl install -o -f \
       imagick && \
