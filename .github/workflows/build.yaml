@@ -36,43 +36,40 @@ jobs:
 
     runs-on: ubuntu-latest
 
-#    strategy:
-#      fail-fast: false
-#      matrix: ${{ fromJson(needs.build_matrix.outputs.matrix_json) }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.build_matrix.outputs.matrix_json) }}
 
     steps:
-      - name: TEST
-        run: echo ${{ fromJson(needs.build_matrix.outputs.matrix_json) }}
+      - name: Checkout
+        uses: actions/checkout@v2
 
-#      - name: Checkout
-#        uses: actions/checkout@v2
-#
-#      - name: Set up QEMU
-#        uses: docker/setup-qemu-action@v1
-#
-#      - name: Set up Docker Buildx
-#        uses: docker/setup-buildx-action@v1
-#
-#      - name: Login to DockerHub
-#        uses: docker/login-action@v1
-#        with:
-#          username: ${{ secrets.DOCKERHUB_USERNAME }}
-#          password: ${{ secrets.DOCKERHUB_PASSWORD }}
-#
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
 #      - name: Build and push
 #        uses: docker/build-push-action@v2
 #        with:
 #          file: ${{ matrix }}
 #          push: true
 #          tags: lostlink/vapor:"${matrix:2:$((${#changed_file} - 13))}"
-#
-#
-##      - name: Build and Push updated Dockerfiles
-##        run: |
-##          for changed_file in ${{ steps.files.outputs.all }}; do
-##            if [[ ${changed_file} == *".Dockerfile" ]]; then
-##              length=$((${#changed_file} - 13))
-##              VERSION=${value:2:$length}
-##              ./build.sh ${VERSION} -p
-##            fi
-##          done
+
+
+#      - name: Build and Push updated Dockerfiles
+#        run: |
+#          for changed_file in ${{ steps.files.outputs.all }}; do
+#            if [[ ${changed_file} == *".Dockerfile" ]]; then
+#              length=$((${#changed_file} - 13))
+#              VERSION=${value:2:$length}
+#              ./build.sh ${VERSION} -p
+#            fi
+#          done
