@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      matrix: ${{ steps.create_matrix.outputs.matrix }}
+      matrix_json: ${{ steps.matrix.outputs.data }}
 
     steps:
       - name: Checkout
@@ -20,20 +20,15 @@ jobs:
         id: files
         uses: jitterbit/get-changed-files@v1
 
-#      - name: Build and Push updated Dockerfiles
-#        run: |
-#          for changed_file in ${{ steps.files.outputs.all }}; do
-#            if [[ ${changed_file} == *".Dockerfile" ]]; then
-#              length=$((${#changed_file} - 13))
-#              VERSION=${value:2:$length}
-#              ./build.sh ${VERSION} -p
-#            fi
-#          done
+      - name: Create Matrix JSON
+        id: json
+        run: |
+          echo ::set-output name=data::${{ steps.files.outputs.all }} | jq -R 'split(" ") | map({path: (.)})'
 
       - name: Build Dockerfile Matrix
-        id: create_matrix
+        id: matrix
         run: |
-          echo '::set-output name=matrix::${{ steps.files.outputs.all }}'
+          echo ::set-output name=data::${{ steps.json.outputs.data }}
 
   build_images:
     needs: build_matrix
@@ -42,7 +37,7 @@ jobs:
 
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.build_matrix.outputs.matrix) }}
+      matrix: ${{ fromJson(needs.build_matrix.outputs.matrix_json) }}
 
     steps:
       - name: Checkout
