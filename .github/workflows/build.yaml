@@ -23,7 +23,7 @@ jobs:
       - name: Create Matrix JSON
         id: json
         run: |
-          json=$(echo ${{ steps.files.outputs.all }} | sed 's/ /\n/g' | sed '/Dockerfile/!d' | sed 's/.Dockerfile//g' | jq -R 'split(" ")' | sed 's/"/\\"/g')
+          json=$(echo ${{ steps.files.outputs.all }} | sed 's/ /\n/g' | sed '/Dockerfile/!d' | jq -R 'split(" ") | map({path: (.), version: (.)}) | .[].version |= .[:-11]' | sed 's/"/\\"/g'
           echo ::set-output name=data::${json}
 
       - name: Build Dockerfile Matrix
@@ -61,6 +61,6 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
-          file: ${{ matrix.dockerfile }}
+          file: ${{ matrix.dockerfile.path }}
           push: true
-          tags: lostlink/vapor:${{ matrix.dockerfile }}
+          tags: lostlink/vapor:${{ matrix.dockerfile.version }}
