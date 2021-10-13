@@ -6,36 +6,7 @@ on:
       - 'main'
 
 jobs:
-  build_matrix:
-    runs-on: ubuntu-latest
-
-    outputs:
-      matrix_json: ${{ steps.matrix.outputs.data }}
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Get changed Files
-        id: files
-        uses: jitterbit/get-changed-files@v1
-
-      - name: Create Matrix JSON
-        id: json
-        run: |
-          json=$(echo ${{ steps.files.outputs.all }} | sed 's/ /\n/g' | sed '/Dockerfile/!d' | jq --slurp --raw-input 'split("\n")[:-1] | map({path: (.), version: (. |= .[:-11])})' | sed 's/"/\\"/g')
-          echo ::set-output name=data::${json}
-
-      - name: Build Dockerfile Matrix
-        id: matrix
-        run: |
-          echo ::set-output name=data::${{ steps.json.outputs.data }}
-
   build_images:
-    if: ${{ needs.build_matrix.outputs.matrix_json }}
-
-    needs: build_matrix
-
     runs-on: ubuntu-latest
 
     env:
@@ -45,7 +16,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        dockerfile: ${{ fromJson(needs.build_matrix.outputs.matrix_json) }}
+        os: ["debian","alpine"]
+        php: ["8.0"]
+        dockerfile: ["base", "octane", "puppeteer", "octane,puppeteer"]
 
     steps:
       - name: Checkout
@@ -68,15 +41,4 @@ jobs:
           DOCKER_BUILDKIT: 1
           COMPOSE_DOCKER_CLI_BUILD: 1
         run: |
-              ./build.sh ${{ matrix.dockerfile.version }} -p
-
-# TODO: Find a way to have INCLUDE+ (# syntax = edrevo/dockerfile-plus) work here instead of using the script ./build.sh
-#      - name: Build and push
-#        uses: docker/build-push-action@v2
-#        env:
-#          DOCKER_BUILDKIT: 1
-#          COMPOSE_DOCKER_CLI_BUILD: 1
-#        with:
-#          file: ${{ matrix.dockerfile.path }}
-#          push: true
-#          tags: lostlink/vapor:${{ matrix.dockerfile.version }}
+              ./build.sh -p ${{ matrix.php }} -o ${{ matrix.os }} -s ${{ matrix.dockerfile }} --publish

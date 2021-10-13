@@ -1,7 +1,4 @@
-# syntax = edrevo/dockerfile-plus
 FROM php:8.0-fpm
-
-INCLUDE+ php80-debian.Dockerfile
 
 RUN pecl channel-update pecl.php.net && \
     pecl install -o -f \
