@@ -36,7 +36,7 @@ jobs:
         id: dockerfile
         run: |
           declare -a lines
-          readarray -t lines < $(./build.sh -p ${{ matrix.php }} -o ${{ matrix.os }} -s ${{ matrix.dockerfile }} --output-dockerfile-path --output-dockerfile-version --dockerfile-keep --no-build)
+          readarray -t lines < <(./build.sh -p ${{ matrix.php }} -o ${{ matrix.os }} -s ${{ matrix.dockerfile }} --output-dockerfile-path --output-dockerfile-version --dockerfile-keep --no-build)
           echo "::set-output name=path::$(echo "${lines[0]}")";
           echo "::set-output name=version::$(echo "${lines[1]}")"
 
