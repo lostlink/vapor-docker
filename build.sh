@@ -57,7 +57,7 @@ build_image () {
 
   echo "${BUILD_DOCKERFILE}"
 
-  docker build --no-cache -f "${BUILD_DOCKERFILE}" -t vapor-"${BUILD_VERSION}":latest .
+  docker build -f "${BUILD_DOCKERFILE}" -t vapor-"${BUILD_VERSION}":latest .
 
   docker tag vapor-"${BUILD_VERSION}":latest "${VENDOR}"/"${REPO}":"${BUILD_VERSION}"
 
