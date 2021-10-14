@@ -124,6 +124,18 @@ main() {
       --repo)
         local INPUT_REPO="$2"
         ;;
+      --output-dockerfile-path)
+        local DOCKERFILE_PATH_OUTPUT=1
+        ;;
+      --output-dockerfile-version)
+        local DOCKERFILE_VERSION_OUTPUT=1
+        ;;
+      --dockerfile-keep)
+        local DOCKERFILE_KEEP=1
+        ;;
+      --no-build)
+        local NO_BUILD=1
+        ;;
       --publish)
         local PUBLISH=1
         ;;
@@ -137,9 +149,25 @@ main() {
 
   prepare_dockerfile
 
-  build_image "${DOCKERFILE_PATH}" "${DOCKERFILE_VERSION}" "${PUBLISH}";
+  if [[ $DOCKERFILE_PATH_OUTPUT == 1 ]]
+  then
+    echo "${DOCKERFILE_PATH}"
+  fi
 
-  rm -fr "${DOCKERFILE_PATH}"
+  if [[ $DOCKERFILE_VERSION_OUTPUT == 1 ]]
+  then
+    echo "${DOCKERFILE_VERSION}"
+  fi
+
+  if [[ $NO_BUILD != 1 ]]
+  then
+    build_image "${DOCKERFILE_PATH}" "${DOCKERFILE_VERSION}" "${PUBLISH}";
+  fi
+
+  if [[ $DOCKERFILE_KEEP != 1 ]]
+  then
+    rm -fr "${DOCKERFILE_PATH}"
+  fi
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
