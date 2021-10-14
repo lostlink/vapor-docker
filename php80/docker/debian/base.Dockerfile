@@ -56,8 +56,6 @@ RUN docker-php-ext-configure gd --with-freetype=/usr/lib/ --with-jpeg=/usr/lib/ 
 RUN docker-php-ext-enable \
       redis
 
-#RUN cp "/etc/ssl/cert.pem" /opt/cert.pem
-
 RUN wget -O /opt/cert.pem http://curl.haxx.se/ca/cacert.pem
 
 COPY php80/runtime/bootstrap /opt/bootstrap

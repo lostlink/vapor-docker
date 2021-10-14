@@ -4,21 +4,37 @@ export DOCKER_BUILDKIT=1
 export COMPOSE_DOCKER_CLI_BUILD=1
 
 prepare_dockerfile () {
+  # PHP Version
+  DOCKERFILE_PHP_VERSION=$(echo "php${PHP_VERSION}" | sed 's/\.//g' | awk '{print tolower($0)}')
+
   # Dockerfile Header
-  DOCKERFILE_CONTENT=$(printf "# syntax = edrevo/dockerfile-plus\nFROM php:%s-fpm-alpine" "${PHP_VERSION}")
+  DOCKERFILE_CONTENT="FROM php:${PHP_VERSION}-fpm-alpine"
   if [ "$OS" == "debian" ]
   then
-    DOCKERFILE_CONTENT=$(printf "# syntax = edrevo/dockerfile-plus\nFROM php:%s-fpm" "${PHP_VERSION}")
+    DOCKERFILE_CONTENT="FROM php:${PHP_VERSION}-fpm"
   fi
 
   # Dockerfile - Include Base Vapor PHP Setup
-  DOCKERFILE_PHP_VERSION=$(echo "php${PHP_VERSION}" | sed 's/\.//g' | awk '{print tolower($0)}')
-  DOCKERFILE_CONTENT=$(printf "%s\nINCLUDE+ ${DOCKERFILE_PHP_VERSION}/docker/${OS}/base.Dockerfile" "${DOCKERFILE_CONTENT}")
+  while read -r line
+  do
+    if [[ $line == FROM* ]]
+    then
+        continue
+    fi
+    DOCKERFILE_CONTENT=$(printf "%s\n${line}" "${DOCKERFILE_CONTENT}")
+  done < "${DOCKERFILE_PHP_VERSION}/docker/${OS}/base.Dockerfile"
 
   # Dockerfile - Include Selected Systems
   for SYSTEM in $(echo "$SYSTEMS" | tr "," "\n" | sort)
   do
-      DOCKERFILE_CONTENT=$(printf "%s\nINCLUDE+ ${DOCKERFILE_PHP_VERSION}/docker/${OS}/${SYSTEM}.Dockerfile"  "${DOCKERFILE_CONTENT}")
+    while read -r line
+    do
+      if [[ $line == FROM* ]]
+      then
+          continue
+      fi
+      DOCKERFILE_CONTENT=$(printf "%s\n${line}" "${DOCKERFILE_CONTENT}")
+    done < "${DOCKERFILE_PHP_VERSION}/docker/${OS}/${SYSTEM}.Dockerfile"
   done
 
   # Create Dockerfile Version
@@ -29,7 +45,7 @@ prepare_dockerfile () {
   done
   DOCKERFILE_VERSION="${DOCKERFILE_VERSION}"
 
-  DOCKERFILE_PATH="./${DOCKERFILE_VERSION}"
+  DOCKERFILE_PATH="./${DOCKERFILE_VERSION}.Dockerfile"
 
   echo "${DOCKERFILE_CONTENT}" > "${DOCKERFILE_PATH}"
 }
@@ -39,7 +55,9 @@ build_image () {
   BUILD_VERSION=$2
   BUILD_PUBLISH=$3
 
-  docker build -f "${BUILD_DOCKERFILE}" -t vapor-"${BUILD_VERSION}":latest .
+  echo "${BUILD_DOCKERFILE}"
+
+  docker build --no-cache -f "${BUILD_DOCKERFILE}" -t vapor-"${BUILD_VERSION}":latest .
 
   docker tag vapor-"${BUILD_VERSION}":latest "${VENDOR}"/"${REPO}":"${BUILD_VERSION}"
 
