@@ -70,15 +70,10 @@ RUN groupadd --force -g $WWWGROUP octane && \
         usermod -u $WWWUSER octane; \
     fi
 
-RUN cp php80/fargate/deployment/config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf && \
-    cp php80/fargate/deployment/config/php.ini /usr/local/etc/php/php.ini && \
-    cp php80/fargate/deployment/config/opcache.ini /usr/local/etc/php/conf.d/opcache.ini && \
-    mkdir /var/www/html/octane/ && \
-    cp php80/fargate/deployment/config/entrypoint.sh /var/www/html/octane/entrypoint.sh && \
-    chgrp -R octane /var/www/html/storage/logs/ /var/www/html/bootstrap/cache/ && \
-    chmod +x /var/www/html/octane/entrypoint.sh && \
-	echo 'php(){ echo "Running php as octane user ..."; su octane -c "php $*";}' >> ~/.bashrc && \
-	ln -s /var/www/html/deployment/octane/entrypoint.sh /entrypoint.sh
+COPY php80/fargate/deployment/config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY php80/fargate/deployment/config/php.ini /usr/local/etc/php/php.ini
+COPY php80/fargate/deployment/config/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
+COPY --chmod=755 php80/fargate/deployment/config/entrypoint.sh /entrypoint.sh
 
 EXPOSE 9000
 
