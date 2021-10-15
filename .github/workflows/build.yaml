@@ -47,4 +47,4 @@ jobs:
           context: .
           file: ${{ steps.dockerfile.outputs.path }}
           push: true
-          tags: lostlink/vapor:${{ steps.dockerfile.outputs.version }}
+          tags: lostlink/${{ matrix.target }}:${{ steps.dockerfile.outputs.version }}
