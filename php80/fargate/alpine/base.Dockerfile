@@ -57,15 +57,8 @@ ARG WWWGROUP=1000
 
 WORKDIR /var/www/html
 
-RUN groupadd --force -g $WWWGROUP octane && \
-    useradd -ms /bin/bash --no-user-group -g $WWWGROUP -u 1337 octane && \
-    if [ ! -z "$WWWUSER" ]; then \
-        usermod -u $WWWUSER octane; \
-    fi
-
-RUN apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
-    rm /var/log/lastlog /var/log/faillog
+RUN addgroup -g $WWWGROUP octane && \
+    adduser -s /bin/bash -G octane -u $WWWUSER octane -D
 
 COPY php80/fargate/deployment/config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY php80/fargate/deployment/config/php.ini /usr/local/etc/php/php.ini
