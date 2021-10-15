@@ -59,10 +59,10 @@ build_image () {
 
   docker build -f "${BUILD_DOCKERFILE}" -t "${TARGET}"-"${BUILD_VERSION}":latest .
 
-  docker tag "${TARGET}"-"${BUILD_VERSION}":latest "${VENDOR}"/"${REPO}":"${BUILD_VERSION}"
+  docker tag "${TARGET}"-"${BUILD_VERSION}":latest "${VENDOR}"/"${TARGET}":"${BUILD_VERSION}"
 
   if [ -n "$BUILD_PUBLISH" ]; then
-    docker push "${VENDOR}"/"${REPO}":"${BUILD_VERSION}"
+    docker push "${VENDOR}"/"${TARGET}":"${BUILD_VERSION}"
   fi
 }
 
@@ -72,7 +72,6 @@ validate_input() {
   SYSTEMS=$(echo "${INPUT_SYSTEMS}" | awk '{print tolower($0)}' | sed 's/base//g' | sed 's/^,//' | sed 's/,$//')
   TARGET=$(echo "${INPUT_TARGET}" | awk '{print tolower($0)}')
   VENDOR=$(echo "${INPUT_VENDOR}" | awk '{print tolower($0)}')
-  REPO=$(echo "${INPUT_REPO}" | awk '{print tolower($0)}')
   PHP_VERSION="${INPUT_PHP}"
 
   # Version should be in the format 8.0
@@ -100,7 +99,6 @@ default_input() {
   INPUT_SYSTEMS="${INPUT_SYSTEMS:-base}"
   INPUT_TARGET="${INPUT_TARGET:-vapor}"
   INPUT_VENDOR="${INPUT_VENDOR:-lostlink}"
-  INPUT_REPO="${INPUT_REPO:-vapor}"
 }
 
 help () {
@@ -126,14 +124,11 @@ main() {
       -s|--systems)
         local INPUT_SYSTEMS="$2"
         ;;
-      -t|--target)
-        local INPUT_TARGET="$2"
-        ;;
       --vendor)
         local INPUT_VENDOR="$2"
         ;;
-      --repo)
-        local INPUT_REPO="$2"
+      -t|--target)
+        local INPUT_TARGET="$2"
         ;;
       --output-dockerfile-path)
         local DOCKERFILE_PATH_OUTPUT=1
