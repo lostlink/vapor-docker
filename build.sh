@@ -78,19 +78,19 @@ validate_input() {
   # Version should be in the format 8.0
   if [ ${#INPUT_PHP} -ne 3 ];
   then
-    echo "PHP error" ; exit
+    echo "PHP error" ; exit 1
   fi
 
   # OS should be alpine or debian only
   if [[ ${OS} != "debian" && ${OS} != "alpine" ]];
   then
-    echo "OS error" ; exit
+    echo "OS error" ; exit 1
   fi
 
   # OS should be alpine or debian only
   if [[ ${TARGET} != "vapor" && ${TARGET} != "fargate" ]];
   then
-    echo "TARGET error" ; exit
+    echo "TARGET error" ; exit 1
   fi
 }
 
@@ -98,7 +98,7 @@ default_input() {
   INPUT_OS="${INPUT_OS:-debian}"
   INPUT_PHP="${INPUT_PHP:-8.0}"
   INPUT_SYSTEMS="${INPUT_SYSTEMS:-base}"
-  INPUT_TARGET="${INPUT_SYSTEMS:-vapor}"
+  INPUT_TARGET="${INPUT_TARGET:-vapor}"
   INPUT_VENDOR="${INPUT_VENDOR:-lostlink}"
   INPUT_REPO="${INPUT_REPO:-vapor}"
 }
