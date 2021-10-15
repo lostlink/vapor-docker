@@ -6,6 +6,7 @@ RUN apt update && \
       nmap \
       wget \
       curl \
+      supervisor \
       ca-certificates \
       libmcrypt-dev \
       libxml2-dev \
@@ -58,13 +59,27 @@ RUN docker-php-ext-enable \
 
 RUN wget -O /opt/cert.pem http://curl.haxx.se/ca/cacert.pem
 
-COPY php80/runtime/bootstrap /opt/bootstrap
-COPY php80/runtime/bootstrap.php /opt/bootstrap.php
-COPY php80/runtime/php.ini /usr/local/etc/php/php.ini
+ARG WWWUSER=1000
+ARG WWWGROUP=1000
 
-RUN chmod 755 /opt/bootstrap
-RUN chmod 755 /opt/bootstrap.php
+WORKDIR /var/www/html
 
-ENTRYPOINT []
+RUN groupadd --force -g $WWWGROUP octane && \
+    useradd -ms /bin/bash --no-user-group -g $WWWGROUP -u 1337 octane && \
+    if [ ! -z "$WWWUSER" ]; then \
+        usermod -u $WWWUSER octane; \
+    fi
 
-CMD /opt/bootstrap
+RUN cp php80/fargate/deployment/config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf && \
+    cp php80/fargate/deployment/config/php.ini /usr/local/etc/php/php.ini && \
+    cp php80/fargate/deployment/config/opcache.ini /usr/local/etc/php/conf.d/opcache.ini && \
+    mkdir /var/www/html/octane/ && \
+    cp php80/fargate/deployment/config/entrypoint.sh /var/www/html/octane/entrypoint.sh && \
+    chgrp -R octane /var/www/html/storage/logs/ /var/www/html/bootstrap/cache/ && \
+    chmod +x /var/www/html/octane/entrypoint.sh && \
+	echo 'php(){ echo "Running php as octane user ..."; su octane -c "php $*";}' >> ~/.bashrc && \
+	ln -s /var/www/html/deployment/octane/entrypoint.sh /entrypoint.sh
+
+EXPOSE 9000
+
+ENTRYPOINT ["/entrypoint.sh"]

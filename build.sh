@@ -22,7 +22,7 @@ prepare_dockerfile () {
         continue
     fi
     DOCKERFILE_CONTENT=$(printf "%s\n${line}" "${DOCKERFILE_CONTENT}")
-  done < "${DOCKERFILE_PHP_VERSION}/docker/${OS}/base.Dockerfile"
+  done < "${DOCKERFILE_PHP_VERSION}/${TARGET}/${OS}/base.Dockerfile"
 
   # Dockerfile - Include Selected Systems
   for SYSTEM in $(echo "$SYSTEMS" | tr "," "\n" | sort)
@@ -34,7 +34,7 @@ prepare_dockerfile () {
           continue
       fi
       DOCKERFILE_CONTENT=$(printf "%s\n${line}" "${DOCKERFILE_CONTENT}")
-    done < "${DOCKERFILE_PHP_VERSION}/docker/${OS}/${SYSTEM}.Dockerfile"
+    done < "${DOCKERFILE_PHP_VERSION}/${TARGET}/${OS}/${SYSTEM}.Dockerfile"
   done
 
   # Create Dockerfile Version
@@ -57,9 +57,9 @@ build_image () {
 
   echo "${BUILD_DOCKERFILE}"
 
-  docker build -f "${BUILD_DOCKERFILE}" -t vapor-"${BUILD_VERSION}":latest .
+  docker build -f "${BUILD_DOCKERFILE}" -t "${TARGET}"-"${BUILD_VERSION}":latest .
 
-  docker tag vapor-"${BUILD_VERSION}":latest "${VENDOR}"/"${REPO}":"${BUILD_VERSION}"
+  docker tag "${TARGET}"-"${BUILD_VERSION}":latest "${VENDOR}"/"${REPO}":"${BUILD_VERSION}"
 
   if [ -n "$BUILD_PUBLISH" ]; then
     docker push "${VENDOR}"/"${REPO}":"${BUILD_VERSION}"
@@ -70,6 +70,7 @@ validate_input() {
   # Make sure input is lowercase and remove base from Systems
   OS=$(echo "${INPUT_OS}" | awk '{print tolower($0)}')
   SYSTEMS=$(echo "${INPUT_SYSTEMS}" | awk '{print tolower($0)}' | sed 's/base//g' | sed 's/^,//' | sed 's/,$//')
+  TARGET=$(echo "${INPUT_TARGET}" | awk '{print tolower($0)}')
   VENDOR=$(echo "${INPUT_VENDOR}" | awk '{print tolower($0)}')
   REPO=$(echo "${INPUT_REPO}" | awk '{print tolower($0)}')
   PHP_VERSION="${INPUT_PHP}"
@@ -85,12 +86,19 @@ validate_input() {
   then
     echo "OS error" ; exit
   fi
+
+  # OS should be alpine or debian only
+  if [[ ${TARGET} != "vapor" && ${TARGET} != "fargate" ]];
+  then
+    echo "TARGET error" ; exit
+  fi
 }
 
 default_input() {
   INPUT_OS="${INPUT_OS:-debian}"
   INPUT_PHP="${INPUT_PHP:-8.0}"
   INPUT_SYSTEMS="${INPUT_SYSTEMS:-base}"
+  INPUT_TARGET="${INPUT_SYSTEMS:-vapor}"
   INPUT_VENDOR="${INPUT_VENDOR:-lostlink}"
   INPUT_REPO="${INPUT_REPO:-vapor}"
 }
@@ -98,10 +106,10 @@ default_input() {
 help () {
 cat << EOD
   To build an image:
-    ./build.sh -s octane,puppeteer -p 8.0 -o debian
+    ./build.sh -s octane,puppeteer -p 8.0 -o debian -t vapor
 
   To build and publish an image:
-    ./build.sh -s octane,puppeteer -p 8.0 -o debian --publish
+    ./build.sh -s octane,puppeteer -p 8.0 -o debian -t vapor --publish
 EOD
 }
 
@@ -117,6 +125,9 @@ main() {
         ;;
       -s|--systems)
         local INPUT_SYSTEMS="$2"
+        ;;
+      -t|--target)
+        local INPUT_TARGET="$2"
         ;;
       --vendor)
         local INPUT_VENDOR="$2"
