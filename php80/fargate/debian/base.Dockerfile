@@ -1,5 +1,8 @@
 FROM php:8.0-fpm
 
+ARG TZ=UTC
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 RUN apt update && \
     apt upgrade -y && \
     apt install -y \
@@ -13,6 +16,7 @@ RUN apt update && \
       libpcre3-dev \
       zlib1g-dev \
       autoconf \
+      unzip \
       libonig-dev \
       openssl \
       libssl-dev \

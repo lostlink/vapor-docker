@@ -1,5 +1,8 @@
 FROM php:8.0-fpm-alpine
 
+ARG TZ=UTC
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 RUN apk --update add \
     wget \
     curl \
@@ -10,6 +13,7 @@ RUN apk --update add \
     pcre-dev \
     zlib-dev \
     autoconf \
+    unzip \
     oniguruma-dev \
     openssl \
     openssl-dev \
