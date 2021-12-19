@@ -38,11 +38,7 @@ RUN pecl channel-update pecl.php.net && \
     rm -rf /tmp/pear
 
 RUN docker-php-ext-install \
-      mysqli \
-      mbstring \
-      pdo \
       pdo_mysql \
-      tokenizer \
       xml \
       pcntl \
       bcmath \
