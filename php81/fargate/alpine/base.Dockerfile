@@ -31,15 +31,13 @@ RUN apk --update add \
   rm /var/cache/apk/*
 
 RUN pecl channel-update pecl.php.net && \
-    pecl install mcrypt redis-5.3.2 && \
+    pecl install  \
+      mcrypt \
+      redis && \
     rm -rf /tmp/pear
 
 RUN docker-php-ext-install \
-      mysqli \
-      mbstring \
-      pdo \
       pdo_mysql \
-      tokenizer \
       xml \
       pcntl \
       bcmath \
@@ -49,7 +47,7 @@ RUN docker-php-ext-install \
       gettext \
       soap \
       sockets \
-      xsl  \
+      xsl \
       exif && \
     docker-php-ext-configure gd --with-freetype=/usr/lib/ --with-jpeg=/usr/lib/ && \
     docker-php-ext-install gd && \

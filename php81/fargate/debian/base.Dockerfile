@@ -35,15 +35,12 @@ RUN apt update && \
 
 RUN pecl channel-update pecl.php.net && \
     pecl install -o -f \
-      redis-5.3.2 && \
+      mcrypt \
+      redis && \
     rm -rf /tmp/pear
 
 RUN docker-php-ext-install \
-      mysqli \
-      mbstring \
-      pdo \
       pdo_mysql \
-      tokenizer \
       xml \
       pcntl \
       bcmath \

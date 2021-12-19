@@ -31,6 +31,7 @@ RUN apk --update add \
 
 RUN pecl channel-update pecl.php.net && \
     pecl install -o -f \
+      mcrypt \
       redis && \
     rm -rf /tmp/pear
 
