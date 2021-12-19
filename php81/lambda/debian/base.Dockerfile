@@ -34,7 +34,7 @@ RUN apt update && \
 
 RUN pecl channel-update pecl.php.net && \
     pecl install -o -f \
-      redis-5.3.2 && \
+      redis && \
     rm -rf /tmp/pear
 
 RUN docker-php-ext-install \
