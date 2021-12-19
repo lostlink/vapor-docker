@@ -59,23 +59,18 @@ build_image () {
 
   echo "${BUILD_DOCKERFILE}"
 
+  if [ "$TARGET" = "lambda" ]; then
+     BUILD_TARGET="vapor"
+  else
+    BUILD_TARGET="${TARGET}"
+  fi
+
   docker buildx rm multibuild
   docker buildx create --use --name multibuild && \
-  docker buildx build --platform linux/amd64,linux/arm64/v8,linux/arm/v7 -f "${BUILD_DOCKERFILE}" . -t "${VENDOR}"/"${TARGET}":"${BUILD_VERSION}"
-
-  if [ "$PHP_VERSION" = "$LATEST_PHP_VERSION" ]; then
-    docker tag "${VENDOR}"/"${TARGET}":"${BUILD_VERSION}" "${TARGET}"-"${BUILD_VERSION}":latest
-  fi
-
-  if [ "$TARGET" = "lambda" ]; then
-    docker tag "${VENDOR}"/"${TARGET}":"${BUILD_VERSION}" "${VENDOR}"/"vapor":"${BUILD_VERSION}"
-    if [ "$PHP_VERSION" = "$LATEST_PHP_VERSION" ]; then
-      docker tag "${VENDOR}"/"${TARGET}":"${BUILD_VERSION}" "${VENDOR}"/"vapor":latest
-    fi
-  fi
+  docker buildx build --platform linux/amd64,linux/arm64/v8,linux/arm/v7 -f "${BUILD_DOCKERFILE}" . -t "${VENDOR}"/"${BUILD_TARGET}":"${BUILD_VERSION}"
 
   if [ -n "$BUILD_PUBLISH" ]; then
-    docker push "${VENDOR}"/"${TARGET}":"${BUILD_VERSION}"
+    docker push "${VENDOR}"/"${BUILD_TARGET}":"${BUILD_VERSION}"
   fi
 }
 

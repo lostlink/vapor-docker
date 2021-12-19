@@ -9,14 +9,26 @@ jobs:
   build_images:
     runs-on: ubuntu-latest
 #    concurrency: ${{ matrix.target }}-${{ matrix.os }}-${{ matrix.php }}-${{ github.ref == 'refs/heads/main' && 'production' || 'develop' }}
+    env:
+      LATEST_PHP_RELEASE: 8.1
 
     strategy:
       fail-fast: false
       matrix:
-        os: ["debian","alpine"]
-        php: ["8.0", "8.1"]
-        target: ["lambda","fargate"]
-        dockerfile: ["base", "octane", "puppeteer", "octane,puppeteer"]
+        os:
+          - "debian"
+          - "alpine"
+        php:
+          - "8.0"
+          - ${{ LATEST_PHP_RELEASE }}
+        target:
+          - "lambda"
+          - "fargate"
+        dockerfile:
+          - "base"
+          - "octane"
+          - "puppeteer"
+          - "octane,puppeteer"
 
     steps:
       - name: Checkout
@@ -46,7 +58,9 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          platforms: linux/amd64,linux/arm64/v8,linux/arm/v7
-          file: ${{ steps.dockerfile.outputs.path }}
           push: true
-          tags: lostlink/${{ matrix.target }}:${{ steps.dockerfile.outputs.version }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          file: ${{ steps.dockerfile.outputs.path }}
+          platforms: linux/amd64,linux/arm64/v8,linux/arm/v7
+          tags: lostlink/${{ matrix.target == 'lambda' && 'vapor' || matrix.target }}:${{ steps.dockerfile.outputs.version }}
