@@ -3,6 +3,8 @@
 export DOCKER_BUILDKIT=1
 export COMPOSE_DOCKER_CLI_BUILD=1
 
+export LATEST_PHP_VERSION="8.1"
+
 prepare_dockerfile () {
   # PHP Version
   DOCKERFILE_PHP_VERSION=$(echo "php${PHP_VERSION}" | sed 's/\.//g' | awk '{print tolower($0)}')
@@ -61,8 +63,15 @@ build_image () {
   docker buildx create --use --name multibuild && \
   docker buildx build --platform linux/amd64,linux/arm64/v8,linux/arm/v7 -f "${BUILD_DOCKERFILE}" . -t "${VENDOR}"/"${TARGET}":"${BUILD_VERSION}"
 
-  if [ "$PHP_VERSION" = "8.1" ]; then
+  if [ "$PHP_VERSION" = "$LATEST_PHP_VERSION" ]; then
     docker tag "${VENDOR}"/"${TARGET}":"${BUILD_VERSION}" "${TARGET}"-"${BUILD_VERSION}":latest
+  fi
+
+  if [ "$TARGET" = "lambda" ]; then
+    docker tag "${VENDOR}"/"${TARGET}":"${BUILD_VERSION}" "${VENDOR}"/"vapor":"${BUILD_VERSION}"
+    if [ "$PHP_VERSION" = "$LATEST_PHP_VERSION" ]; then
+      docker tag "${VENDOR}"/"${TARGET}":"${BUILD_VERSION}" "${VENDOR}"/"vapor":latest
+    fi
   fi
 
   if [ -n "$BUILD_PUBLISH" ]; then
@@ -81,7 +90,7 @@ validate_input() {
   # Version should be in the format 8.0
   if [ ${#INPUT_PHP} -ne 3 ];
   then
-    echo "PHP error" ; exit 1
+    echo "Missing PHP version, eg: --php=${LATEST_PHP_VERSION}" ; exit 1
   fi
 
   # OS should be alpine or debian only
@@ -99,7 +108,7 @@ validate_input() {
 
 default_input() {
   INPUT_OS="${INPUT_OS:-debian}"
-  INPUT_PHP="${INPUT_PHP:-8.1}"
+  INPUT_PHP="${INPUT_PHP:-$LATEST_PHP_VERSION}"
   INPUT_SYSTEMS="${INPUT_SYSTEMS:-base}"
   INPUT_TARGET="${INPUT_TARGET:-lambda}"
   INPUT_VENDOR="${INPUT_VENDOR:-lostlink}"
@@ -108,10 +117,10 @@ default_input() {
 help () {
 cat << EOD
   To build an image:
-    ./build.sh -s octane,puppeteer -p 8.1 -o debian -t lambda
+    ./build.sh -s octane,puppeteer -p ${LATEST_PHP_VERSION} -o debian -t lambda
 
   To build and publish an image:
-    ./build.sh -s octane,puppeteer -p 8.1 -o debian -t lambda --publish
+    ./build.sh -s octane,puppeteer -p ${LATEST_PHP_VERSION} -o debian -t lambda --publish
 EOD
 }
 
