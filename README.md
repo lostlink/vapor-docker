@@ -28,13 +28,13 @@ To build and publish an image:
 ./build.sh php80-debian -p
 ```
 
-To build all imagea:
+To build all images:
 
 ```shell script
 ./build.sh all
 ```
 
-To build and publish all image:
+To build and publish all images:
 
 ```shell script
 ./build.sh all -p

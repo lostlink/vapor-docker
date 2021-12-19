@@ -14,7 +14,7 @@ prepare_dockerfile () {
     DOCKERFILE_CONTENT="FROM php:${PHP_VERSION}-fpm"
   fi
 
-  # Dockerfile - Include Base PHP Setup
+  # Dockerfile - Include Base Vapor PHP Setup
   while read -r line
   do
     if [[ $line == FROM* ]]
@@ -57,13 +57,9 @@ build_image () {
 
   echo "${BUILD_DOCKERFILE}"
 
-  docker buildx rm multibuild
-  docker buildx create --use --name multibuild && \
-  docker buildx build --platform linux/amd64,linux/arm64/v8,linux/arm/v7 -f "${BUILD_DOCKERFILE}" . -t "${VENDOR}"/"${TARGET}":"${BUILD_VERSION}"
+  docker build -f "${BUILD_DOCKERFILE}" -t "${TARGET}"-"${BUILD_VERSION}":latest .
 
-  if [ "$PHP_VERSION" = "8.1" ]; then
-    docker tag "${VENDOR}"/"${TARGET}":"${BUILD_VERSION}" "${TARGET}"-"${BUILD_VERSION}":latest
-  fi
+  docker tag "${TARGET}"-"${BUILD_VERSION}":latest "${VENDOR}"/"${TARGET}":"${BUILD_VERSION}"
 
   if [ -n "$BUILD_PUBLISH" ]; then
     docker push "${VENDOR}"/"${TARGET}":"${BUILD_VERSION}"
@@ -90,8 +86,8 @@ validate_input() {
     echo "OS error" ; exit 1
   fi
 
-  # Target should be lambda or fargate only
-  if [[ ${TARGET} != "lambda" && ${TARGET} != "fargate" ]];
+  # OS should be alpine or debian only
+  if [[ ${TARGET} != "vapor" && ${TARGET} != "fargate" ]];
   then
     echo "TARGET error" ; exit 1
   fi
@@ -99,19 +95,19 @@ validate_input() {
 
 default_input() {
   INPUT_OS="${INPUT_OS:-debian}"
-  INPUT_PHP="${INPUT_PHP:-8.1}"
+  INPUT_PHP="${INPUT_PHP:-8.0}"
   INPUT_SYSTEMS="${INPUT_SYSTEMS:-base}"
-  INPUT_TARGET="${INPUT_TARGET:-lambda}"
+  INPUT_TARGET="${INPUT_TARGET:-vapor}"
   INPUT_VENDOR="${INPUT_VENDOR:-lostlink}"
 }
 
 help () {
 cat << EOD
   To build an image:
-    ./build.sh -s octane,puppeteer -p 8.1 -o debian -t lambda
+    ./build.sh -s octane,puppeteer -p 8.0 -o debian -t vapor
 
   To build and publish an image:
-    ./build.sh -s octane,puppeteer -p 8.1 -o debian -t lambda --publish
+    ./build.sh -s octane,puppeteer -p 8.0 -o debian -t vapor --publish
 EOD
 }
 

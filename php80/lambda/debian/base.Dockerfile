@@ -1,37 +1,40 @@
-FROM php:8.0-fpm-alpine
+FROM php:8.0-fpm
 
 ARG TZ=UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-RUN apk --update add \
-    wget \
-    curl \
-    build-base \
-    supervisor \
-    libmcrypt-dev \
-    libxml2-dev \
-    pcre-dev \
-    zlib-dev \
-    autoconf \
-    unzip \
-    oniguruma-dev \
-    openssl \
-    openssl-dev \
-    freetype-dev \
-    libjpeg-turbo-dev \
-    jpeg-dev \
-    libpng-dev \
-    imagemagick-dev \
-    imagemagick \
-    postgresql-dev \
-    libzip-dev \
-    gettext-dev \
-    libxslt-dev \
-    libgcrypt-dev &&\
-  rm /var/cache/apk/*
+RUN apt update && \
+    apt upgrade -y && \
+    apt install -y \
+      nmap \
+      wget \
+      curl \
+      ca-certificates \
+      libmcrypt-dev \
+      libxml2-dev \
+      libpcre3-dev \
+      zlib1g-dev \
+      autoconf \
+      unzip \
+      libonig-dev \
+      openssl \
+      libssl-dev \
+      libfreetype6-dev \
+      libjpeg62-turbo-dev \
+      libjpeg-dev \
+      libpng-dev \
+      libmagickwand-dev \
+      libmagickcore-dev \
+      imagemagick \
+      libpq-dev \
+      libzip-dev \
+      gettext \
+      libxslt-dev \
+      libgcrypt-dev
 
 RUN pecl channel-update pecl.php.net && \
-    pecl install mcrypt redis-5.3.2 && \
+    pecl install -o -f \
+      redis-5.3.2 && \
     rm -rf /tmp/pear
 
 RUN docker-php-ext-install \
@@ -49,7 +52,7 @@ RUN docker-php-ext-install \
       gettext \
       soap \
       sockets \
-      xsl  \
+      xsl \
       exif && \
     docker-php-ext-configure gd --with-freetype=/usr/lib/ --with-jpeg=/usr/lib/ && \
     docker-php-ext-install gd && \
@@ -63,19 +66,13 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" &&
     php -r "unlink('composer-setup.php');" && \
     mv composer.phar /usr/bin/composer
 
-ARG WWWUSER=1000
-ARG WWWGROUP=1000
+COPY php80/lambda/runtime/bootstrap /opt/bootstrap
+COPY php80/lambda/runtime/bootstrap.php /opt/bootstrap.php
+COPY php80/lambda/runtime/php.ini /usr/local/etc/php/php.ini
 
-WORKDIR /var/www/html
+RUN chmod 755 /opt/bootstrap
+RUN chmod 755 /opt/bootstrap.php
 
-RUN addgroup -g $WWWGROUP octane && \
-    adduser -s /bin/bash -G octane -u $WWWUSER octane -D
+ENTRYPOINT []
 
-COPY php80/fargate/deployment/config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-COPY php80/fargate/deployment/config/php.ini /usr/local/etc/php/php.ini
-COPY php80/fargate/deployment/config/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
-COPY --chmod=755 php80/fargate/deployment/config/entrypoint.sh /entrypoint.sh
-
-EXPOSE 9000
-
-ENTRYPOINT ["/entrypoint.sh"]
+CMD /opt/bootstrap

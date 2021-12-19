@@ -1,4 +1,4 @@
-FROM php:8.0-fpm-alpine
+FROM php:8.1-fpm-alpine
 
 ENV CHROME_BIN="/usr/bin/chromium-browser" \
     CHROME_PATH="/usr/lib/chromium/" \
@@ -24,6 +24,6 @@ RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" > /etc/apk/repositorie
       npm && \
     rm /var/cache/apk/*
 
-COPY "php80/vapor/alpine/resources/local.conf" "/etc/fonts/local.conf"
+COPY "php81/fargate/alpine/resources/local.conf" "/etc/fonts/local.conf"
 
 RUN npm install --global puppeteer

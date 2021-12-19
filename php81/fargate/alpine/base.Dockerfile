@@ -1,4 +1,4 @@
-FROM php:8.0-fpm-alpine
+FROM php:8.1-fpm-alpine
 
 ARG TZ=UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
@@ -71,10 +71,10 @@ WORKDIR /var/www/html
 RUN addgroup -g $WWWGROUP octane && \
     adduser -s /bin/bash -G octane -u $WWWUSER octane -D
 
-COPY php80/fargate/deployment/config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-COPY php80/fargate/deployment/config/php.ini /usr/local/etc/php/php.ini
-COPY php80/fargate/deployment/config/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
-COPY --chmod=755 php80/fargate/deployment/config/entrypoint.sh /entrypoint.sh
+COPY php81/fargate/deployment/config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY php81/fargate/deployment/config/php.ini /usr/local/etc/php/php.ini
+COPY php81/fargate/deployment/config/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
+COPY --chmod=755 php81/fargate/deployment/config/entrypoint.sh /entrypoint.sh
 
 EXPOSE 9000
 

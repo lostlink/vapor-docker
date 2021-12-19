@@ -7,7 +7,6 @@ RUN apk --update add \
     wget \
     curl \
     build-base \
-    supervisor \
     libmcrypt-dev \
     libxml2-dev \
     pcre-dev \
@@ -49,7 +48,7 @@ RUN docker-php-ext-install \
       gettext \
       soap \
       sockets \
-      xsl  \
+      xsl \
       exif && \
     docker-php-ext-configure gd --with-freetype=/usr/lib/ --with-jpeg=/usr/lib/ && \
     docker-php-ext-install gd && \
@@ -63,19 +62,13 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" &&
     php -r "unlink('composer-setup.php');" && \
     mv composer.phar /usr/bin/composer
 
-ARG WWWUSER=1000
-ARG WWWGROUP=1000
+COPY php80/lambda/runtime/bootstrap /opt/bootstrap
+COPY php80/lambda/runtime/bootstrap.php /opt/bootstrap.php
+COPY php80/lambda/runtime/php.ini /usr/local/etc/php/php.ini
 
-WORKDIR /var/www/html
+RUN chmod 755 /opt/bootstrap
+RUN chmod 755 /opt/bootstrap.php
 
-RUN addgroup -g $WWWGROUP octane && \
-    adduser -s /bin/bash -G octane -u $WWWUSER octane -D
+ENTRYPOINT []
 
-COPY php80/fargate/deployment/config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-COPY php80/fargate/deployment/config/php.ini /usr/local/etc/php/php.ini
-COPY php80/fargate/deployment/config/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
-COPY --chmod=755 php80/fargate/deployment/config/entrypoint.sh /entrypoint.sh
-
-EXPOSE 9000
-
-ENTRYPOINT ["/entrypoint.sh"]
+CMD /opt/bootstrap
