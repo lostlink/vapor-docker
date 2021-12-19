@@ -8,7 +8,7 @@ on:
 jobs:
   build_images:
     runs-on: ubuntu-latest
-    concurrency: ${{ github.ref == 'refs/heads/main' && 'production' || 'develop' }}
+    concurrency: ${{ matrix.target }}-${{ matrix.os }}-${{ matrix.php }}-${{ github.ref == 'refs/heads/main' && 'production' || 'develop' }}
 
     strategy:
       fail-fast: false
