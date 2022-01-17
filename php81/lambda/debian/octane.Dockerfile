@@ -5,7 +5,5 @@ RUN pecl channel-update pecl.php.net && \
       swoole && \
     rm -rf /tmp/pear
 
-RUN docker-php-ext-install \
-      opcache && \
-    docker-php-ext-enable \
+RUN docker-php-ext-enable \
       swoole
