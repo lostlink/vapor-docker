@@ -9,8 +9,6 @@ jobs:
   build_images:
     runs-on: ubuntu-latest
 #    concurrency: ${{ matrix.target }}-${{ matrix.os }}-${{ matrix.php }}-${{ github.ref == 'refs/heads/main' && 'production' || 'develop' }}
-    env:
-      LATEST_PHP_RELEASE: 8.1
 
     strategy:
       fail-fast: false
@@ -20,7 +18,7 @@ jobs:
           - "alpine"
         php:
           - "8.0"
-          - ${{ LATEST_PHP_RELEASE }}
+          - "8.1"
         target:
           - "lambda"
           - "fargate"
