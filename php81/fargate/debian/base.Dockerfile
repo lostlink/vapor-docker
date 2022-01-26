@@ -49,7 +49,7 @@ RUN docker-php-ext-install \
       intl \
       gettext \
       soap \
-      sockets \
+#      sockets \
       xsl \
       exif && \
     docker-php-ext-configure gd --with-freetype=/usr/lib/ --with-jpeg=/usr/lib/ && \
